@@ -4,6 +4,8 @@
 #include <vector>
 #include <unistd.h>
 #include <map>
+#include <sys/wait.h>
+#include <fcntl.h>
 
 #include "PathResolver.h"
 
@@ -14,7 +16,9 @@ public:
     CommandExecutor() = default;
 
     // This method is used to execute a command with the given arguments
-    void executeCommand(const std::string &command, const std::vector<std::string> &args, bool isBackground);
+    void executeCommand(const std::string &command, const std::vector<std::string> &args, bool isBackground,
+                        const std::string &inputFile = "", const std::string &outputFile = "",
+                        int inputPipe = -1, int outputPipe = -1);
 
     // This method is used to print the background processes
     void printBackgroundProcesses();
@@ -29,8 +33,13 @@ public:
         backgroundProcesses.erase(pid);
     }
 
-
 private:
     std::map<pid_t, std::string> backgroundProcesses;
+
+    // Helper method to handle input and output redirection
+    static void handleRedirection(const std::string &inputFile, const std::string &outputFile);
+
+    // Helper method to handle pipe creation and connection
+    static void handlePipes(int inputPipe, int outputPipe);
 };
 
